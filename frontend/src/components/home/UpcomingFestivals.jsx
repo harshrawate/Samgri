@@ -1,24 +1,27 @@
 import { Gift, Sparkles, SunMoon } from "lucide-react";
+import DiwaliImgHome from "../../assets/home/DiwaliHomeImg.jpg";
+import EidImg from "../../assets/home/EidImg.jpg";
+import CristmasImg from "../../assets/home/cristmasImg.avif";
 
 const festivals = [
   {
     name: "Diwali",
     date: "November 12, 2025",
-    image: "/images/diwali.jpg", // Update with your actual image path
+    image: DiwaliImgHome, // Update with your actual image path
     linkText: "View Puja Items",
     linkColor: "text-[#F4A300]", // Saffron
   },
   {
     name: "Eid al-Fitr",
     date: "April 2, 2025",
-    image: "/images/eid.jpg",
+    image: EidImg,
     linkText: "View Celebration Items",
     linkColor: "text-[#7B2C3F]", // Deep Maroon
   },
   {
     name: "Christmas",
     date: "December 25, 2025",
-    image: "/images/christmas.jpg",
+    image: CristmasImg,
     linkText: "View Festive Items",
     linkColor: "text-[#D4AF37]", // Gold
   },
