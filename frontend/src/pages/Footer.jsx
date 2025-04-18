@@ -7,7 +7,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* About Samgri */}
           <div>
-            <h3 className="text-lg font-medium mb-4">About Samgri</h3>
+            <h3 className="text-lg text-orange-500 font-bold mb-4">Samgri</h3>
             <p className="text-gray-400 text-sm mb-6">
               Your one-stop destination for authentic spiritual products and
               services across all religions.
