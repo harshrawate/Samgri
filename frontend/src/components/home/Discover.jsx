@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import Discover1 from "../../assets/home/discoverImg1.jpg";
+import Discover2 from "../../assets/home/discoverImg2.jpg";
+import Discover3 from "../../assets/home/discoverImg3.jpg";
 
 export default function Discover() {
   const [hoveredCard, setHoveredCard] = useState(null);
@@ -9,21 +12,21 @@ export default function Discover() {
       title: "Explore a Diverse Range of Religious Offerings for Every Faith",
       description: "Navigate through various religions to find the perfect products and services.",
       buttonText: "Explore",
-      image: "/api/placeholder/400/300"
+      image: Discover1
     },
     {
       id: 2,
       title: "Connect with Rituals and Traditions That Resonate with Your Faith",
       description: "Engage with rituals that honor your spiritual journey and cultural heritage.",
       buttonText: "Discover",
-      image: "/api/placeholder/400/300"
+      image: Discover2
     },
     {
       id: 3,
       title: "Find Services and Products That Cater to Your Spiritual Needs",
       description: "Access a wide selection of items designed for your religious practices.",
       buttonText: "Shop",
-      image: "/api/placeholder/400/300"
+      image: Discover3
     }
   ];
 

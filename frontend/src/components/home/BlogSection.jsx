@@ -1,23 +1,29 @@
+import DiwaliImgHome2 from "../../assets/home/DiwaliImgHome2.jpg";
+import NavratriImgHome from "../../assets/home/NavratriImg.jpg";
+import MakarSankrantiImgHome from "../../assets/home/SankraniImg.jpg";
+
+
+
 const blogPosts = [
     {
       title: "The Significance of Diwali Celebrations",
       category: "Rituals",
       time: "5 min read",
-      image: "/images/blog-diwali.jpg", // Replace with your actual image path
+      image: DiwaliImgHome2, // Replace with your actual image path
       description: "Learn about the traditions and rituals of Diwali and their meanings.",
     },
     {
       title: "Understanding the Importance of Navratri",
       category: "Festivals",
       time: "5 min read",
-      image: "/images/blog-navratri.jpg",
+      image: NavratriImgHome,
       description: "Explore the rituals and significance of the Navratri festival.",
     },
     {
       title: "Celebrating Makar Sankranti Traditions",
       category: "Rituals",
       time: "5 min read",
-      image: "/images/blog-sankranti.jpg",
+      image:  MakarSankrantiImgHome,
       description: "Discover the customs and significance of Makar Sankranti.",
     },
   ];
