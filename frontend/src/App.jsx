@@ -15,6 +15,9 @@ import About from "./pages/about/About";
 import BookPrist from "./pages/bookPrist/BookPrist";
 import PriestSelectionPage from "./components/bookPrist/PriestSelectionPage";
 import PristAddressConfirmationPage from "./components/bookPrist/PristAddressConfirmationPage";
+import LoginPage from "./pages/LoginPage";
+import SignupPage from "./pages/SignupPage";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 
 function App() {
   return (
@@ -31,6 +34,9 @@ function App() {
         <Route path="/book-prist" element={<BookPrist/>} />
         <Route path="/priest-selection" element={<PriestSelectionPage/>} />
         <Route path="/address-confirmation" element={<PristAddressConfirmationPage/>} />
+        <Route path="/login" element={<LoginPage/>} />
+        <Route path="/signup" element={<SignupPage/>} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage/>} />
         <Route path="*" element={<h1>404 Not Found</h1>} />
         
       </Routes>
