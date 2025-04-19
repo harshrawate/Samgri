@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Search, ShoppingCart, User, Menu, X } from 'lucide-react';
 
+
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -20,7 +21,7 @@ export default function Navbar() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             <a href="/shop" className="text-gray-600 hover:text-gray-900">Shop</a>
-            <a href="/book-a-priest" className="text-gray-600 hover:text-gray-900">Book a Priest</a>
+            <a href="/book-prist" className="text-gray-600 hover:text-gray-900">Book a Priest</a>
             <a href="/festivals" className="text-gray-600 hover:text-gray-900">Festivals</a>
             <a href="/blog" className="text-gray-600 hover:text-gray-900">Blog</a>
             <a href="/about-us" className="text-gray-600 hover:text-gray-900">About Us</a>
@@ -78,7 +79,7 @@ export default function Navbar() {
               <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             </div>
             <a href="/shop" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md">Shop</a>
-            <a href="/book-a-priest" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md">Book a Priest</a>
+            <a href="/book-prist" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md">Book a Priest</a>
             <a href="/festivals" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md">Festivals</a>
             <a href="/blog" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md">Blog</a>
             <a href="/about-us" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md">About Us</a>
