@@ -8,13 +8,13 @@ export default function UserDashboard() {
   const [activeMenu, setActiveMenu] = useState('Dashboard');
   
   const menuItems = [
-    { name: 'Dashboard', icon: <Home size={18} /> },
-    { name: 'My Orders', icon: <Package size={18} /> },
-    { name: 'Priest Bookings', icon: <Calendar size={18} /> },
-    { name: 'Wishlist', icon: <Heart size={18} /> },
-    { name: 'Address Book', icon: <Book size={18} /> },
-    { name: 'Profile Settings', icon: <Settings size={18} /> },
-    { name: 'Change Password', icon: <Lock size={18} /> },
+    { name: 'Dashboard',to:"/account", icon: <Home size={18} /> },
+    { name: 'My Orders',to:"/order-history", icon: <Package size={18} /> },
+    { name: 'Priest Bookings',to:"/priest-booking-history", icon: <Calendar size={18} /> },
+    { name: 'Wishlist',to:"/account", icon: <Heart size={18} /> },
+    { name: 'Address Book',to:"/address-book", icon: <Book size={18} /> },
+    { name: 'Profile Settings',to:"/profile-settings", icon: <Settings size={18} /> },
+    { name: 'Change Password',to:"/forgot-password", icon: <Lock size={18} /> },
   ];
 
   const dashboardStats = [
@@ -58,9 +58,10 @@ export default function UserDashboard() {
           <div className="w-full md:w-64 bg-white rounded-lg shadow-sm p-2">
             <nav className="space-y-1">
               {menuItems.map((item) => (
-                <button
+                <a
                   key={item.name}
                   onClick={() => setActiveMenu(item.name)}
+                  href={item.to}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-md text-left transition-colors ${
                     activeMenu === item.name
                       ? 'bg-orange-50 text-orange-500'
@@ -69,7 +70,7 @@ export default function UserDashboard() {
                 >
                   {item.icon}
                   <span>{item.name}</span>
-                </button>
+                </a>
               ))}
               
               <button className="w-full flex items-center gap-3 px-4 py-3 rounded-md text-left text-red-500 hover:bg-red-50 transition-colors">
@@ -122,18 +123,18 @@ export default function UserDashboard() {
             
             {/* Action Buttons */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <button className="flex items-center justify-center gap-2 bg-white py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+              <a href='/order-history' className="flex items-center justify-center gap-2 bg-white py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                 <Eye size={18} />
                 <span>View All Orders</span>
-              </button>
+              </a>
               <button className="flex items-center justify-center gap-2 bg-white py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                 <PlusCircle size={18} />
                 <span>Book Again</span>
               </button>
-              <button className="flex items-center justify-center gap-2 bg-white py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
+              <a href='/address-book' className="flex items-center justify-center gap-2 bg-white py-3 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
                 <MapPin size={18} />
                 <span>Update Address</span>
-              </button>
+              </a>
             </div>
           </div>
         </div>
