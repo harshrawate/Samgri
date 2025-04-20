@@ -18,6 +18,19 @@ import PristAddressConfirmationPage from "./components/bookPrist/PristAddressCon
 import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ProfileSettings from "./components/account/ProfileSettings";
+import OrderHistory from "./components/account/OrderHistory";
+import PriestBookingHistory from "./components/account/PristBookingHistory";
+import UserAddress from "./components/account/UserAddress";
+import AdminDashboard from "./pages/admin/AdminDashboard";
+import AdminPristBooking from "./pages/admin/AdminPristBooking";
+import AdminRituals from "./pages/admin/AdminRituals";
+import AdminUsersPage from "./pages/admin/AdminUsersPage";
+import AdminProductsPage from "./pages/admin/AdminProductsPage";
+import AdminBookingManagement from "./pages/admin/AdminBookingManagement";
+import AdminOrderManagement from "./pages/admin/AdminOrderManagement";
+
+
 
 function App() {
   return (
@@ -37,6 +50,30 @@ function App() {
         <Route path="/login" element={<LoginPage/>} />
         <Route path="/signup" element={<SignupPage/>} />
         <Route path="/forgot-password" element={<ForgotPasswordPage/>} />
+        <Route path="/profile-settings" element={<ProfileSettings/>} />
+        <Route path="/order-history" element={<OrderHistory/>} />
+        <Route path="/priest-booking-history" element={<PriestBookingHistory/>} />
+        <Route path="/address-book" element={<UserAddress/>} />
+        <Route path="/admin/dashboard" element={<AdminDashboard/>} />
+        <Route path="/admin/priest-booking" element={<AdminPristBooking/>} />
+        <Route path="/admin/rituals" element={<AdminRituals/>} />
+        <Route path="/admin/users" element={<AdminUsersPage/>} />
+        <Route path="/admin/products" element={<AdminProductsPage/>} />
+        <Route path="/admin/booking-management" element={<AdminBookingManagement/>} />
+        <Route path="/admin/order-management" element={<AdminOrderManagement/>} /> 
+
+        
+        
+      
+        
+      
+        
+        
+        
+        
+        
+        
+        
         <Route path="*" element={<h1>404 Not Found</h1>} />
         
       </Routes>
