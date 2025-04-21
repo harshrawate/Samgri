@@ -29,6 +29,8 @@ import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminProductsPage from "./pages/admin/AdminProductsPage";
 import AdminBookingManagement from "./pages/admin/AdminBookingManagement";
 import AdminOrderManagement from "./pages/admin/AdminOrderManagement";
+import OtpVerificationPage from "./pages/OtpVerificationPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 
 
@@ -61,6 +63,13 @@ function App() {
         <Route path="/admin/products" element={<AdminProductsPage/>} />
         <Route path="/admin/booking-management" element={<AdminBookingManagement/>} />
         <Route path="/admin/order-management" element={<AdminOrderManagement/>} /> 
+        <Route path="/otp-verification" element={<OtpVerificationPage/>} />
+        <Route path="/reset-password" element={<ResetPasswordPage/>} />
+        
+        
+        
+        
+       
 
         
         
