@@ -80,7 +80,7 @@ const SignupPage = () => {
 
         <div className="mt-6 pt-4 border-t border-gray-200">
           <p className="text-center text-gray-600">
-            Already have an account?{" "}
+            Already have an account ?{" "}
             <a href="/login" className="text-orange-500 font-medium hover:text-orange-600 transition">
               Sign in
             </a>
