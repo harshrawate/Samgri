@@ -1,64 +1,68 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 const OtpVerificationPage = () => {
   const [otp, setOtp] = useState(["", "", "", ""]);
-  const inputRefs = [useRef(null), useRef(null), useRef(null), useRef(null)];
+  const inputRefs = [useRef(), useRef(), useRef(), useRef()];
+  const location = useLocation();
+  const navigate = useNavigate();
+  const email = location.state?.email;
 
-  // Auto-focus on the first input on page load
   useEffect(() => {
-    if (inputRefs[0].current) {
-      inputRefs[0].current.focus();
-    }
+    if (inputRefs[0].current) inputRefs[0].current.focus();
   }, []);
 
   const handleChange = (index, value) => {
-    if (value.match(/^[0-9]$/) || value === "") {
+    if (/^[0-9]?$/.test(value)) {
       const newOtp = [...otp];
       newOtp[index] = value;
       setOtp(newOtp);
-
-      // Auto-focus on next input
-      if (value !== "" && index < 3) {
-        inputRefs[index + 1].current.focus();
-      }
+      if (value !== "" && index < 3) inputRefs[index + 1].current.focus();
     }
   };
 
   const handleKeyDown = (index, e) => {
-    // Handle backspace
-    if (e.key === "Backspace" && index > 0 && otp[index] === "") {
+    if (e.key === "Backspace" && otp[index] === "" && index > 0) {
       inputRefs[index - 1].current.focus();
     }
   };
 
   const handlePaste = (e) => {
-    e.preventDefault();
-    const pastedData = e.clipboardData.getData("text").trim().slice(0, 4);
-    
-    if (/^\d+$/.test(pastedData)) {
+    const pasted = e.clipboardData.getData("text").slice(0, 4);
+    if (/^\d{1,4}$/.test(pasted)) {
       const newOtp = [...otp];
-      
-      for (let i = 0; i < pastedData.length; i++) {
-        if (i < 4) {
-          newOtp[i] = pastedData[i];
-        }
-      }
-      
+      for (let i = 0; i < pasted.length; i++) newOtp[i] = pasted[i];
       setOtp(newOtp);
-      
-      // Focus the appropriate input
-      if (pastedData.length < 4 && pastedData.length > 0) {
-        inputRefs[pastedData.length].current.focus();
-      }
+      if (pasted.length < 4) inputRefs[pasted.length].current.focus();
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const otpValue = otp.join("");
-    console.log("OTP Verification:", otpValue);
-    // Replace with your API call for OTP verification
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  const code = otp.join("");
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/verify-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...location.state, // name, email, password
+        otp: code,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert("Account created successfully!");
+      navigate("/login");
+    } else {
+      alert(data.message || "OTP verification failed");
+    }
+  } catch (err) {
+    console.error("OTP verify error:", err);
+    alert("Something went wrong");
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-gray-100 px-4">

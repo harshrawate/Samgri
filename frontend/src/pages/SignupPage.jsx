@@ -1,24 +1,36 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const SignupPage = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ name: "", email: "", password: "" });
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({ 
-      ...formData, 
-      [e.target.name]: e.target.value 
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Signup Data:", formData);
-    // You can integrate API call here
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    const res = await fetch("http://localhost:5000/api/auth/send-otp", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert("OTP sent to your email. Please verify.");
+      navigate("/otp-verification", { state: formData }); // Pass name, email, password
+    } else {
+      alert(data.message || "Failed to send OTP");
+    }
+  } catch (err) {
+    console.error("Signup error:", err);
+    alert("Something went wrong");
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-orange-50 to-gray-100 px-4">
