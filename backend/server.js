@@ -4,6 +4,7 @@ import express from 'express'
 import dotenv from 'dotenv'
 import cors from 'cors'
 import connectDB from './config/db.js'
+import authRoutes from "./routes/authRoutes.js";
 
 // Load environment variables from .env file
 dotenv.config()
@@ -21,7 +22,10 @@ app.use(express.json()) // Parses incoming JSON requests
 // Base route
 app.get('/', (req, res) => {
   res.send('Welcome to the Samgri Backend API')
-})
+});
+
+app.use("/api/auth", authRoutes);
+
 
 // Example route setup (uncomment when routes are ready)
 // import priestRoutes from './routes/priestRoutes.js'
