@@ -2,6 +2,7 @@ import { User } from "../models/userModel.js";
 import { sendEmail } from "../utils/sendEmail.js";
 import { generateToken } from "../utils/jwtHelper.js";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 
 const otpStore = new Map(); // TEMP in-memory OTP store
 
@@ -33,14 +34,15 @@ export const sendOtp = async (req, res) => {
   res.status(200).json({ message: "OTP sent to your email." });
 };
 
-
 // STEP 2: Verify OTP and Register User
 export const verifyOtpAndRegister = async (req, res) => {
   const { email, otp } = req.body;
 
   const record = otpStore.get(email);
   if (!record) {
-    return res.status(400).json({ message: "No OTP found. Please request again." });
+    return res
+      .status(400)
+      .json({ message: "No OTP found. Please request again." });
   }
 
   if (record.otp !== otp) {
@@ -64,9 +66,15 @@ export const verifyOtpAndRegister = async (req, res) => {
   const token = generateToken(user._id);
   otpStore.delete(email);
 
-  res.status(201).json({
-    message: "User registered successfully",
-    token,
+  res.cookie("token", token, {
+    httpOnly: true, // can't be accessed via JS
+    secure: false, // only sent on HTTPS (use false for localhost dev)
+    sameSite: "Lax", // CSRF protection
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+
+  res.status(200).json({
+    message: "Login successful",
     user: {
       id: user._id,
       name: user.name,
@@ -79,7 +87,6 @@ export const verifyOtpAndRegister = async (req, res) => {
 // STEP 3: Login
 export const loginUser = async (req, res) => {
   const { email, password } = req.body;
-  
 
   const user = await User.findOne({ email }).select("+password");
   if (!user) {
@@ -90,12 +97,18 @@ export const loginUser = async (req, res) => {
   if (!isMatch) {
     return res.status(401).json({ message: "Invalid credentials" });
   }
-  
 
   const token = generateToken(user._id);
+
+  res.cookie("token", token, {
+    httpOnly: true, // can't be accessed via JS
+    secure: true, // only sent on HTTPS (use false for localhost dev)
+    sameSite: "Lax", // CSRF protection
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+
   res.status(200).json({
     message: "Login successful",
-    token,
     user: {
       id: user._id,
       name: user.name,
@@ -104,3 +117,104 @@ export const loginUser = async (req, res) => {
     },
   });
 };
+
+export const getMyProfile = (req, res) => {
+  const user = req.user;
+
+  res.status(200).json({
+    success: true,
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+  });
+};
+
+export const logoutUser = (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: false, // only sent on HTTPS (use false for localhost dev)
+    sameSite: "Lax", // CSRF protection
+  });
+
+  res.status(200).json({ message: "Logout successful" });
+}
+
+
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: "Email is required" });
+  }
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  // Generate reset token
+  const resetToken = crypto.randomBytes(32).toString("hex");
+
+  // Hash the token to store in DB
+  const resetTokenHash = crypto.createHash("sha256").update(resetToken).digest("hex");
+
+  // Save token & expiry on user
+  user.resetPasswordToken = resetTokenHash;
+  user.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 mins
+  await user.save();
+
+  const resetUrl = `http://localhost:5173/reset-password/${resetToken}`;
+
+  const message = `
+    <h3>Samgri - Password Reset</h3>
+    <p>You requested to reset your password.</p>
+    <p><a href="${resetUrl}" target="_blank">Click here to reset password</a></p>
+    <p>If you did not request this, please ignore this email.</p>
+  `;
+
+  try {
+    await sendEmail(user.email, "Password Reset Request", message);
+    res.status(200).json({ message: "Reset link sent to your email." });
+  } catch (err) {
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpire = undefined;
+    await user.save();
+    return res.status(500).json({ message: "Email could not be sent." });
+  }
+};
+
+
+export const resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { password } = req.body;
+
+  const resetTokenHash = crypto.createHash("sha256").update(token).digest("hex");
+
+  const user = await User.findOne({
+    resetPasswordToken: resetTokenHash,
+    resetPasswordExpire: { $gt: Date.now() },
+  });
+
+  
+
+
+
+  if (!user) {
+    
+    return res.status(400).json({ message: "Invalid or expired token" });
+  }
+
+  user.password = password;
+  user.resetPasswordToken = undefined;
+  user.resetPasswordExpire = undefined;
+
+  await user.save();
+
+  res.status(200).json({ message: "Password has been reset successfully" });
+};
+
+

@@ -13,16 +13,16 @@ const LoginPage = () => {
     e.preventDefault();
     try {
       const res = await fetch("http://localhost:5000/api/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(formData),
+  credentials: "include", // this sends/receives cookies
+});
 
       const data = await res.json();
 
       if (res.ok) {
         alert("Login successful");
-        localStorage.setItem("token", data.token);
         navigate("/");
       } else {
         alert(data.message || "Login failed");

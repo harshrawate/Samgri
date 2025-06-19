@@ -31,6 +31,8 @@ import AdminBookingManagement from "./pages/admin/AdminBookingManagement";
 import AdminOrderManagement from "./pages/admin/AdminOrderManagement";
 import OtpVerificationPage from "./pages/OtpVerificationPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
+import ProtectedRoute from "./pages/protectedRoute";
+
 
 
 
@@ -43,7 +45,7 @@ function App() {
         <Route path="/shop" element={<Shop/>} />
         <Route path="/festivals" element={<Festival/>} />
         <Route path="/blog" element={<Blog/>} />
-        <Route path="/account" element={<Account/>} />
+        <Route path="/account" element={ <ProtectedRoute>  <Account/> </ProtectedRoute>} />
         <Route path="/cart" element={<Cart/>} />
         <Route path="about-us" element={<About/>} />
         <Route path="/book-prist" element={<BookPrist/>} />
@@ -64,7 +66,7 @@ function App() {
         <Route path="/admin/booking-management" element={<AdminBookingManagement/>} />
         <Route path="/admin/order-management" element={<AdminOrderManagement/>} /> 
         <Route path="/otp-verification" element={<OtpVerificationPage/>} />
-        <Route path="/reset-password" element={<ResetPasswordPage/>} />
+        <Route path="/reset-password/:token" element={<ResetPasswordPage/>} />
         
         
         

@@ -1,11 +1,31 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import { 
   Home, Package, Calendar, Heart, Book, Settings, 
   Lock, LogOut, Eye, PlusCircle, MapPin, ShoppingBag
 } from 'lucide-react';
 
 export default function UserDashboard() {
+  const [user, setUser] = useState(null);
   const [activeMenu, setActiveMenu] = useState('Dashboard');
+
+  useEffect(() => {
+    fetch("http://localhost:5000/api/auth/me", {
+      credentials: "include", // send cookies
+    })
+      .then((res) => res.json())
+      .then((data) => setUser(data.user))
+      .catch(() => setUser(null));
+  }, []);
+
+  // Logout handler
+  const handleLogout = async () => {
+    await fetch("http://localhost:5000/api/auth/logout", {
+      method: "POST",
+      credentials: "include",
+    });
+    setUser(null);
+    window.location.reload(); // or redirect to login
+  };
   
   const menuItems = [
     { name: 'Dashboard',to:"/account", icon: <Home size={18} /> },
@@ -44,7 +64,7 @@ export default function UserDashboard() {
             
             <div className="text-center sm:text-left">
               <h1 className="text-xl font-bold text-gray-800">My Account</h1>
-              <p className="text-gray-600">Welcome back, Harsh!</p>
+              <p className="text-gray-600">Welcome back, {user?.name || "Guest"}!</p>
             </div>
           </div>
           
@@ -73,7 +93,7 @@ export default function UserDashboard() {
                 </a>
               ))}
               
-              <button className="w-full flex items-center gap-3 px-4 py-3 rounded-md text-left text-red-500 hover:bg-red-50 transition-colors">
+              <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-md text-left text-red-500 hover:bg-red-50 transition-colors">
                 <LogOut size={18} />
                 <span>Logout</span>
               </button>
