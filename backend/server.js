@@ -1,22 +1,28 @@
-// server.js
 
-import express from 'express'
+
 import dotenv from 'dotenv'
+import express from 'express'
 import cors from 'cors'
 import connectDB from './config/db.js'
 import authRoutes from "./routes/authRoutes.js";
+import cookieParser from "cookie-parser";
 
 // Load environment variables from .env file
-dotenv.config()
+dotenv.config();
+
 
 // Connect to MongoDB
 connectDB()
 
 // Initialize Express app
-const app = express()
+const app = express();
+app.use(cookieParser());
 
 // Middleware
-app.use(cors())
+app.use(cors({
+  origin: "http://localhost:5173",  // frontend origin
+  credentials: true,               // allow cookies
+}));
 app.use(express.json()) // Parses incoming JSON requests
 
 // Base route

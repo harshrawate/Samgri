@@ -1,6 +1,9 @@
 import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+dotenv.config();
 
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret"; // use env in production
+ // Debugging line to check if JWT_SECRET is set
+const JWT_SECRET = process.env.JWT_SECRET; // use env in production
 const JWT_EXPIRES_IN = "7d"; // or customize
 
 // Generate token
