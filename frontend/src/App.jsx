@@ -33,6 +33,8 @@ import OtpVerificationPage from "./pages/OtpVerificationPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProtectedRoute from "./pages/protectedRoute";
 
+import AdminRoute from "./pages/ProtectedAdminRoute";
+
 
 
 
@@ -58,13 +60,14 @@ function App() {
         <Route path="/order-history" element={<OrderHistory/>} />
         <Route path="/priest-booking-history" element={<PriestBookingHistory/>} />
         <Route path="/address-book" element={<UserAddress/>} />
-        <Route path="/admin/dashboard" element={<AdminDashboard/>} />
-        <Route path="/admin/priest-booking" element={<AdminPristBooking/>} />
-        <Route path="/admin/rituals" element={<AdminRituals/>} />
-        <Route path="/admin/users" element={<AdminUsersPage/>} />
-        <Route path="/admin/products" element={<AdminProductsPage/>} />
-        <Route path="/admin/booking-management" element={<AdminBookingManagement/>} />
-        <Route path="/admin/order-management" element={<AdminOrderManagement/>} /> 
+        <Route path="/admin/dashboard" element={   
+          <AdminRoute> <AdminDashboard/> </AdminRoute> } />
+        <Route path="/admin/priest-booking" element={<AdminRoute>  <AdminPristBooking/> </AdminRoute>} />
+        <Route path="/admin/rituals" element={<AdminRoute>  <AdminRituals/> </AdminRoute>} />
+        <Route path="/admin/users" element={ <AdminRoute> <AdminUsersPage/> </AdminRoute>} />
+        <Route path="/admin/products" element={ <AdminRoute> <AdminProductsPage/> </AdminRoute>} />
+        <Route path="/admin/booking-management" element={<AdminRoute>  <AdminBookingManagement/> </AdminRoute>} />
+        <Route path="/admin/order-management" element={ <AdminRoute> <AdminOrderManagement/> </AdminRoute>} /> 
         <Route path="/otp-verification" element={<OtpVerificationPage/>} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage/>} />
         
