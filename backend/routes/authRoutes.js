@@ -4,7 +4,7 @@ import {
   verifyOtpAndRegister,
   loginUser,getMyProfile,logoutUser,forgotPassword, resetPassword
 } from "../controllers/authController.js";
-import { isAuthenticated } from "../middleware/isAuthenticated.js";
+import { isAuthenticated,isAdmin } from "../middleware/isAuthenticated.js";
 
 const router = express.Router();
 
@@ -23,6 +23,8 @@ router.post("/logout", logoutUser);
 
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
+
+
 
 
 
