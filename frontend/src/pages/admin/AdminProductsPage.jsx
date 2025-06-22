@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect} from "react";
 import {
   Search,
   Plus,
@@ -21,6 +21,7 @@ import {
 
 const AdminProductsPage = () => {
   const [showModal, setShowModal] = useState(false);
+  const [products, setProducts] = useState([]);
   const [images, setImages] = useState([]);
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -176,6 +177,7 @@ videos.forEach(video => {
       setSuccess('Product created successfully!');
       resetForm();
       setShowModal(false);
+      await fetchProducts();
       // Optionally: refresh product list here
     } catch (err) {
       setError(err.message);
@@ -183,6 +185,39 @@ videos.forEach(video => {
       setLoading(false);
     }
   };
+
+  const fetchProducts = async () => {
+  try {
+    const res = await fetch('http://localhost:5000/api/product/getProducts');
+    const data = await res.json();
+    setProducts(data.products || []);
+  } catch (err) {
+    setError('Failed to fetch products');
+  }
+};
+
+useEffect(() => {
+  fetchProducts();
+}, []);
+
+const handleDeleteProduct = async (id) => {
+  if (!window.confirm('Are you sure you want to delete this product?')) return;
+  setLoading(true);
+  setError('');
+  try {
+    const res = await fetch(`http://localhost:5000/api/product/${id}`, {
+      method: 'DELETE'
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Failed to delete product');
+    setSuccess('Product deleted successfully!');
+    await fetchProducts();
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   
 
@@ -249,28 +284,32 @@ videos.forEach(video => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td className="p-2">P001</td>
-              <td className="p-2">
-                <img
-                  src="/images/sample.jpg"
-                  alt="product"
-                  className="w-10 h-10 object-cover rounded"
-                />
-              </td>
-              <td className="p-2">Incense Sticks</td>
-              <td className="p-2">Incense</td>
-              <td className="p-2">Hindu</td>
-              <td className="p-2">₹150</td>
-              <td className="p-2">30</td>
-              <td className="p-2 text-green-600">Active</td>
-              <td className="p-2 space-x-2">
-                <button><Eye size={16} /></button>
-                <button><Edit size={16} /></button>
-                <button><Trash2 size={16} className="text-red-600" /></button>
-              </td>
-            </tr>
-          </tbody>
+  {products.map((product) => (
+    <tr key={product._id}>
+      <td className="p-2">{product._id}</td>
+      <td className="p-2">
+        <img
+          src={product.media?.find(m => m.type === 'image')?.url || '/images/sample.jpg'}
+          alt={product.title}
+          className="w-10 h-10 object-cover rounded"
+        />
+      </td>
+      <td className="p-2">{product.title}</td>
+      <td className="p-2">{product.category}</td>
+      <td className="p-2">{product.religion}</td>
+      <td className="p-2">₹{product.price}</td>
+      <td className="p-2">{product.stock}</td>
+      <td className="p-2 text-green-600">{product.status}</td>
+      <td className="p-2 space-x-2">
+        <button><Eye size={16} /></button>
+        <button><Edit size={16} /></button>
+        <button onClick={() => handleDeleteProduct(product._id)}>
+  <Trash2 size={16} className="text-red-600" />
+</button>
+      </td>
+    </tr>
+  ))}
+</tbody>
         </table>
       </div>
 
