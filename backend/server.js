@@ -6,6 +6,7 @@ import cors from 'cors'
 import connectDB from './config/db.js'
 import authRoutes from "./routes/authRoutes.js";
 import cookieParser from "cookie-parser";
+import productRoutes from './routes/productRoutes.js';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -31,6 +32,7 @@ app.get('/', (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use('/api/product', productRoutes);
 
 
 // Example route setup (uncomment when routes are ready)
