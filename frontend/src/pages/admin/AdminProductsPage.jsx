@@ -22,6 +22,11 @@ import {
 
 const AdminProductsPage = () => {
   const navigate = useNavigate();
+  const [filterCategory, setFilterCategory] = useState("");
+  const [filterAvailability, setFilterAvailability] = useState("");
+  const [filterReligion, setFilterReligion] = useState("");
+  const [sortBy, setSortBy] = useState("Newest");
+  const [searchQuery, setSearchQuery] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [products, setProducts] = useState([]);
   const [images, setImages] = useState([]);
@@ -224,6 +229,36 @@ const AdminProductsPage = () => {
     }
   };
 
+  const filteredProducts = products
+    .filter((product) =>
+      filterCategory ? product.category === filterCategory : true
+    )
+    .filter((product) =>
+      filterAvailability
+        ? filterAvailability === "Available"
+          ? product.stock > 0
+          : product.stock === 0
+        : true
+    )
+    .filter((product) =>
+      filterReligion ? product.religion === filterReligion : true
+    )
+    .filter((product) =>
+      searchQuery
+        ? product.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (product.description &&
+            product.description
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase()))
+        : true
+    )
+    .sort((a, b) => {
+      if (sortBy === "Price") return a.price - b.price;
+      if (sortBy === "Popularity") return (b.sales || 0) - (a.sales || 0);
+      // Default: Newest
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+
   return (
     <div className="bg-gray-50 min-h-screen p-6">
       {/* Header */}
@@ -241,25 +276,57 @@ const AdminProductsPage = () => {
                 type="text"
                 placeholder="Search products..."
                 className="pl-10 pr-4 py-2 border rounded w-full"
+                value={searchQuery} // 2. Bind value
+                onChange={(e) => setSearchQuery(e.target.value)} // 3. Update state
               />
               <Search
                 className="absolute left-2 top-2.5 text-gray-400"
                 size={18}
               />
             </div>
-            <select className="border px-2 py-2 rounded">
-              <option>Category</option>
+            <select
+              className="border px-2 py-2 rounded"
+              value={filterCategory}
+              onChange={(e) => setFilterCategory(e.target.value)}
+            >
+              <option value="">Category</option>
+              <option value="Idols">Idols</option>
+              <option value="Incense">Incense</option>
+              <option value="Decorations">Decorations</option>
+              <option value="Books">Books</option>
+              <option value="Jewelry">Jewelry</option>
+              <option value="Clothing">Clothing</option>
             </select>
-            <select className="border px-2 py-2 rounded">
-              <option>Availability</option>
+            <select
+              className="border px-2 py-2 rounded"
+              value={filterAvailability}
+              onChange={(e) => setFilterAvailability(e.target.value)}
+            >
+              <option value="">Availability</option>
+              <option value="Available">Available</option>
+              <option value="OutOfStock">Out of Stock</option>
             </select>
-            <select className="border px-2 py-2 rounded">
-              <option>Religion</option>
+            <select
+              className="border px-2 py-2 rounded"
+              value={filterReligion}
+              onChange={(e) => setFilterReligion(e.target.value)}
+            >
+              <option value="">Religion</option>
+              <option value="Hinduism">Hinduism</option>
+              <option value="Buddhism">Buddhism</option>
+              <option value="Christianity">Christianity</option>
+              <option value="Islam">Islam</option>
+              <option value="Sikhism">Sikhism</option>
+              <option value="Jainism">Jainism</option>
             </select>
-            <select className="border px-2 py-2 rounded">
-              <option>Sort by: Newest</option>
-              <option>Price</option>
-              <option>Popularity</option>
+            <select
+              className="border px-2 py-2 rounded"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+            >
+              <option value="Newest">Sort by: Newest</option>
+              <option value="Price">Price</option>
+              <option value="Popularity">Popularity</option>
             </select>
           </div>
 
@@ -289,7 +356,7 @@ const AdminProductsPage = () => {
             </tr>
           </thead>
           <tbody>
-            {products.map((product) => (
+            {filteredProducts.map((product) => (
               <tr key={product._id}>
                 <td className="p-2">{product._id}</td>
                 <td className="p-2">
@@ -312,9 +379,13 @@ const AdminProductsPage = () => {
                   <button>
                     <Eye size={16} />
                   </button>
-                 <button onClick={() => navigate(`/admin/products/${product._id}/edit`)}>
-  <Edit size={16} />
-</button>
+                  <button
+                    onClick={() =>
+                      navigate(`/admin/products/${product._id}/edit`)
+                    }
+                  >
+                    <Edit size={16} />
+                  </button>
                   <button onClick={() => handleDeleteProduct(product._id)}>
                     <Trash2 size={16} className="text-red-600" />
                   </button>
