@@ -1,5 +1,6 @@
 import express from 'express';
-import { createProduct } from '../controllers/productController.js';
+import { createProduct , getProducts , deleteProduct } from '../controllers/productController.js';
+import Product from '../models/productModel.js';
 import { uploadImages, uploadVideos } from '../utils/cloudinary.js';
 import multer from 'multer';
 
@@ -24,5 +25,9 @@ const multiUpload = upload.fields([
 const router = express.Router();
 
 router.post('/addProducts', multiUpload, createProduct);
+
+router.get('/getProducts', getProducts);
+
+router.delete('/:id', deleteProduct);
 
 export default router;

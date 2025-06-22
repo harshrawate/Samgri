@@ -1,4 +1,5 @@
 import Product from '../models/productModel.js';
+import { cloudinary } from '../utils/cloudinary.js';
 
 export const createProduct = async (req, res) => {
   try {
@@ -42,5 +43,38 @@ export const createProduct = async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ success: false, error: 'Server error' });
+  }
+};
+
+
+export const getProducts = async (req, res) => {
+  try {
+    const products = await Product.find().sort({ createdAt: -1 });
+    res.json({ products });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to fetch products' });
+  }
+};
+
+
+export const deleteProduct = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) return res.status(404).json({ error: 'Product not found' });
+
+    // Delete all media from Cloudinary
+    for (const media of product.media) {
+      if (media.public_id) {
+        await cloudinary.uploader.destroy(media.public_id, {
+          resource_type: media.type === 'video' ? 'video' : 'image'
+        });
+      }
+    }
+
+    await product.deleteOne();
+
+    res.json({ success: true, message: 'Product deleted' });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to delete product' });
   }
 };
