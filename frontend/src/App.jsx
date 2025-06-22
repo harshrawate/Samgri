@@ -29,6 +29,7 @@ import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminProductsPage from "./pages/admin/AdminProductsPage";
 import AdminBookingManagement from "./pages/admin/AdminBookingManagement";
 import AdminOrderManagement from "./pages/admin/AdminOrderManagement";
+import AdminProductEditPage from './pages/admin/AdminProductEditPage';
 import OtpVerificationPage from "./pages/OtpVerificationPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import ProtectedRoute from "./pages/protectedRoute";
@@ -70,6 +71,8 @@ function App() {
         <Route path="/admin/order-management" element={ <AdminRoute> <AdminOrderManagement/> </AdminRoute>} /> 
         <Route path="/otp-verification" element={<OtpVerificationPage/>} />
         <Route path="/reset-password/:token" element={<ResetPasswordPage/>} />
+
+        <Route path="/admin/products/:id/edit" element={<AdminProductEditPage />} />
         
         
         
