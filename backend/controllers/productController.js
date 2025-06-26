@@ -1,5 +1,8 @@
 import Product from '../models/productModel.js';
 import { cloudinary } from '../utils/cloudinary.js';
+import mongoose from 'mongoose';
+
+
 
 export const createProduct = async (req, res) => {
   try {
@@ -140,5 +143,42 @@ export const getProductById = async (req, res) => {
     res.json({ product });
   } catch (err) {
     res.status(500).json({ error: 'Failed to fetch product' });
+  }
+};
+
+export const getRelatedProducts = async (req, res) => {
+  try {
+    const { category, religion, exclude } = req.query;
+
+   
+
+    if (!category || !religion) {
+      console.log("Missing category or religion");
+      return res.status(400).json({ error: "Category and religion are required" });
+    }
+
+    const query = {
+      category,
+      religion,
+      status: "Active" // optional if you want only active products
+    };
+
+    if (exclude) {
+      const isValid = mongoose.Types.ObjectId.isValid(exclude);
+      
+      if (isValid) {
+        query._id = { $ne: new mongoose.Types.ObjectId(exclude) };
+      }
+    }
+
+    
+
+    const related = await Product.find(query).limit(8);
+    
+
+    res.json(related);
+  } catch (err) {
+    console.error("Error in getRelatedProducts:", err); // This should show if anything fails
+    res.status(500).json({ error: "Failed to fetch product" });
   }
 };

@@ -36,6 +36,8 @@ import ProtectedRoute from "./pages/protectedRoute";
 
 import AdminRoute from "./pages/ProtectedAdminRoute";
 
+import ProductDetails from './components/product/ProductDetails';
+
 
 
 
@@ -73,6 +75,10 @@ function App() {
         <Route path="/reset-password/:token" element={<ResetPasswordPage/>} />
 
         <Route path="/admin/products/:id/edit" element={<AdminProductEditPage />} />
+
+        <Route path="/product/:id" element={<ProductDetails />} />
+
+
         
         
         
