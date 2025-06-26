@@ -1,5 +1,5 @@
 import express from 'express';
-import { createProduct , getProducts , deleteProduct,updateProduct ,getProductById } from '../controllers/productController.js';
+import { createProduct , getProducts , deleteProduct,updateProduct ,getProductById,getRelatedProducts } from '../controllers/productController.js';
 import Product from '../models/productModel.js';
 import { uploadImages, uploadVideos } from '../utils/cloudinary.js';
 import multer from 'multer';
@@ -32,6 +32,10 @@ router.delete('/:id', deleteProduct);
 
 router.put('/:id', multiUpload, updateProduct);
 
+router.get('/related', getRelatedProducts);
+
 router.get('/:id', getProductById);
+
+
 
 export default router;
