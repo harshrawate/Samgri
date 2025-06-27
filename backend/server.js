@@ -7,6 +7,7 @@ import connectDB from './config/db.js'
 import authRoutes from "./routes/authRoutes.js";
 import cookieParser from "cookie-parser";
 import productRoutes from './routes/productRoutes.js';
+import cartRoutes from './routes/cartRoutes.js';
 
 // Load environment variables from .env file
 dotenv.config();
@@ -22,7 +23,8 @@ app.use(cookieParser());
 // Middleware
 app.use(cors({
   origin: "http://localhost:5173",  // frontend origin
-  credentials: true,               // allow cookies
+  credentials: true,   
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],            // allow cookies
 }));
 app.use(express.json()) // Parses incoming JSON requests
 
@@ -33,6 +35,7 @@ app.get('/', (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use('/api/product', productRoutes);
+app.use('/api/cart', cartRoutes);
 
 
 // Example route setup (uncomment when routes are ready)
