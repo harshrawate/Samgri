@@ -34,6 +34,29 @@ const fetchRelatedProducts = async (category, religion, currentProductId) => {
   }
 };
 
+const addToCart = async (productId, quantity) => {
+  try {
+    const res = await fetch("http://localhost:5000/api/cart/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: "include",
+      body: JSON.stringify({ productId, quantity }), // ✅ send quantity
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed to add to cart");
+    alert("Added to cart!");
+    fetchCart();
+  } catch (err) {
+    alert("Please login to add to cart.");
+    console.error(err);
+  }
+};
+
+
+
 
 export default function ProductDetails() {
 
@@ -270,7 +293,10 @@ export default function ProductDetails() {
             <div className="space-y-3">
               <div className="flex gap-3">
                 <button
-                  onClick={handleAddToCart}
+                  onClick={(e) => {
+    e.stopPropagation(); // Prevent navigation
+    addToCart(product._id, quantity);
+  }}
                   disabled={product.stock === 0}
                   className="flex-1 bg-[#5C1A1B] text-white py-3 rounded-lg font-semibold hover:bg-opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >

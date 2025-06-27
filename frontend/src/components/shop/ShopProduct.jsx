@@ -19,6 +19,28 @@ const fetchProducts = async () => {
   }
 };
 
+const addToCart = async (productId) => {
+  try {
+    const res = await fetch("http://localhost:5000/api/cart/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      credentials: "include", // ⬅️ Important to include cookies
+      body: JSON.stringify({ productId }),
+    });
+
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed to add to cart");
+    alert("Added to cart!");
+  } catch (err) {
+    alert("Please login to add to cart.");
+    console.error(err);
+  }
+};
+
+
+
 export default function ShopProduct() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
@@ -298,9 +320,15 @@ export default function ShopProduct() {
                           <p className="text-[#D4AF37] font-bold text-lg">₹{Math.round(discountedPrice)}</p>
                         </div>
 
-                        <button className="mt-4 w-full bg-[#5C1A1B] text-white py-2 rounded-lg hover:bg-opacity-90 transition-colors">
-                          Add to Cart
-                        </button>
+                        <button
+  onClick={(e) => {
+    e.stopPropagation(); // Prevent navigation
+    addToCart(product._id);
+  }}
+  className="mt-4 w-full bg-[#5C1A1B] text-white py-2 rounded-lg hover:bg-opacity-90 transition-colors"
+>
+  Add to Cart
+</button>
                       </div>
                     </div>
                   );
