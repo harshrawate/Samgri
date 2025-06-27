@@ -87,7 +87,7 @@ export default function Navbar() {
             <a href="/festivals" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md">Festivals</a>
             <a href="/blog" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md">Blog</a>
             <a href="/about-us" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md">About Us</a>
-            <a href="/account" className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md flex items-center">
+            <a href="/account" className="px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md flex items-center">
               <User size={20} className="mr-2" /> My Account
             </a>
           </div>
