@@ -1,36 +1,95 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MapPin, Home, Briefcase, Plus, Edit2, Trash2, X, Check } from 'lucide-react';
 
-export default function UserAddress() {
-  const [addresses, setAddresses] = useState([
-    {
-      id: 1,
-      fullName: 'Rahul Sharma',
-      mobile: '+91 98765 43210',
-      addressLine1: '42, Sunshine Apartments',
-      addressLine2: 'Sector 15',
-      city: 'Gurugram',
-      state: 'Haryana',
-      zipCode: '122001',
-      type: 'Home',
-      isDefault: true
-    },
-    {
-      id: 2,
-      fullName: 'Rahul Sharma',
-      mobile: '+91 87654 32109',
-      addressLine1: 'B-121, Tech Park',
-      addressLine2: 'Cyber City',
-      city: 'Gurugram',
-      state: 'Haryana',
-      zipCode: '122002',
-      type: 'Work',
-      isDefault: false
-    }
-  ]);
 
+
+const addressService = {
+  // Get all addresses
+  getAddresses: async () => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/addresses`, {
+  method: 'GET',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  credentials: 'include' // 🔥 This tells the browser to include cookies
+});
+
+      if (!response.ok) throw new Error('Failed to fetch addresses');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching addresses:', error);
+      throw error;
+    }
+  },
+
+  // Add new address
+  addAddress: async (addressData) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/addresses`, {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  credentials: 'include', // 🔥 Send cookies (including JWT)
+  body: JSON.stringify(addressData)
+});
+
+      if (!response.ok) throw new Error('Failed to add address');
+      return await response.json();
+    } catch (error) {
+      console.error('Error adding address:', error);
+      throw error;
+    }
+  },
+
+  // Update address
+  updateAddress: async (id, addressData) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/addresses/${id}`, {
+  method: 'PUT',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  credentials: 'include', // ✅ Ensures JWT cookie is sent
+  body: JSON.stringify(addressData)
+});
+
+      if (!response.ok) throw new Error('Failed to update address');
+      return await response.json();
+    } catch (error) {
+      console.error('Error updating address:', error);
+      throw error;
+    }
+  },
+
+  // Delete address
+  deleteAddress: async (id) => {
+    try {
+      const response = await fetch(`http://localhost:5000/api/addresses/${id}`, {
+  method: 'DELETE',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  credentials: 'include' // ✅ This ensures the cookie is sent
+});
+
+      if (!response.ok) throw new Error('Failed to delete address');
+      return await response.json();
+    } catch (error) {
+      console.error('Error deleting address:', error);
+      throw error;
+    }
+  }
+};
+
+export default function UserAddress() {
+  const [addresses, setAddresses] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [showAddressForm, setShowAddressForm] = useState(false);
   const [editingAddress, setEditingAddress] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [newAddress, setNewAddress] = useState({
     fullName: '',
     mobile: '',
@@ -42,6 +101,25 @@ export default function UserAddress() {
     type: 'Home',
     isDefault: false
   });
+
+  // Load addresses on component mount
+  useEffect(() => {
+    loadAddresses();
+  }, []);
+
+  const loadAddresses = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const data = await addressService.getAddresses();
+      setAddresses(data);
+    } catch (err) {
+      setError('Failed to load addresses. Please try again.');
+      console.error('Error loading addresses:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -69,74 +147,81 @@ export default function UserAddress() {
 
   const handleEditAddress = (address) => {
     setShowAddressForm(true);
-    setEditingAddress(address.id);
-    setNewAddress({...address});
+    setEditingAddress(address._id);
+    setNewAddress({
+      fullName: address.fullName,
+      mobile: address.mobile,
+      addressLine1: address.addressLine1,
+      addressLine2: address.addressLine2 || '',
+      city: address.city,
+      state: address.state,
+      zipCode: address.zipCode,
+      type: address.type,
+      isDefault: address.isDefault
+    });
   };
 
-  const handleDeleteAddress = (id) => {
+  const handleDeleteAddress = async (id) => {
     if (window.confirm('Are you sure you want to delete this address?')) {
-      setAddresses(addresses.filter(address => address.id !== id));
-    }
-  };
-
-  const handleSetDefaultAddress = (id) => {
-    setAddresses(addresses.map(address => ({
-      ...address,
-      isDefault: address.id === id
-    })));
-  };
-
-  const handleSaveAddress = () => {
-    if (editingAddress) {
-      // Update existing address
-      setAddresses(addresses.map(address => {
-        if (address.id === editingAddress) {
-          return {
-            ...newAddress,
-            id: editingAddress
-          };
-        }
-        
-        // If the current address is being set as default, make other addresses non-default
-        if (newAddress.isDefault && address.id !== editingAddress) {
-          return {
-            ...address,
-            isDefault: false
-          };
-        }
-        
-        return address;
-      }));
-    } else {
-      // Add new address
-      const newId = Math.max(...addresses.map(address => address.id), 0) + 1;
-      
-      // If this is the first address or it's being set as default
-      if (newAddress.isDefault || addresses.length === 0) {
-        setAddresses([
-          ...addresses.map(address => ({
-            ...address,
-            isDefault: false
-          })),
-          {
-            ...newAddress,
-            id: newId,
-            isDefault: true
-          }
-        ]);
-      } else {
-        setAddresses([
-          ...addresses,
-          {
-            ...newAddress,
-            id: newId
-          }
-        ]);
+      try {
+        await addressService.deleteAddress(id);
+        setAddresses(addresses.filter(address => address._id !== id));
+      } catch (err) {
+        setError('Failed to delete address. Please try again.');
+        console.error('Error deleting address:', err);
       }
     }
-    
-    setShowAddressForm(false);
-    setEditingAddress(null);
+  };
+
+  const handleSetDefaultAddress = async (id) => {
+    try {
+      const addressToUpdate = addresses.find(addr => addr._id === id);
+      if (addressToUpdate) {
+        await addressService.updateAddress(id, { ...addressToUpdate, isDefault: true });
+        // Update local state
+        setAddresses(addresses.map(address => ({
+          ...address,
+          isDefault: address._id === id
+        })));
+      }
+    } catch (err) {
+      setError('Failed to set default address. Please try again.');
+      console.error('Error setting default address:', err);
+    }
+  };
+
+  const handleSaveAddress = async () => {
+    if (!isFormValid()) return;
+
+    try {
+      setSaving(true);
+      setError(null);
+
+      if (editingAddress) {
+        // Update existing address
+        const updatedAddress = await addressService.updateAddress(editingAddress, newAddress);
+        setAddresses(addresses.map(address => 
+          address._id === editingAddress ? updatedAddress : address
+        ));
+      } else {
+        // Add new address
+        const addedAddress = await addressService.addAddress(newAddress);
+        setAddresses([...addresses, addedAddress]);
+      }
+      
+      setShowAddressForm(false);
+      setEditingAddress(null);
+      
+      // If this was set as default, refresh the list to get updated default states
+      if (newAddress.isDefault) {
+        await loadAddresses();
+      }
+    } catch (err) {
+      setError('Failed to save address. Please try again.');
+      console.error('Error saving address:', err);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const getAddressTypeIcon = (type) => {
@@ -161,6 +246,22 @@ export default function UserAddress() {
     );
   };
 
+  if (loading) {
+    return (
+      <div className="bg-gray-50 min-h-screen py-8 px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-200 rounded mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gray-50 min-h-screen py-8 px-4">
       <div className="max-w-4xl mx-auto">
@@ -173,12 +274,34 @@ export default function UserAddress() {
           <p className="text-gray-600 mt-1">Manage your delivery and billing addresses</p>
         </div>
 
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <X className="h-5 w-5 text-red-400" />
+              </div>
+              <div className="ml-3">
+                <p className="text-sm text-red-800">{error}</p>
+              </div>
+              <div className="ml-auto pl-3">
+                <button
+                  onClick={() => setError(null)}
+                  className="text-red-400 hover:text-red-600"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Address List */}
         {addresses.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
             {addresses.map((address) => (
               <div 
-                key={address.id} 
+                key={address._id} 
                 className={`bg-white rounded-lg shadow-md p-4 relative ${
                   address.isDefault ? 'border-2 border-orange-500' : ''
                 }`}
@@ -222,7 +345,7 @@ export default function UserAddress() {
                   </button>
                   <button 
                     className="text-sm text-red-500 hover:text-red-700 flex items-center"
-                    onClick={() => handleDeleteAddress(address.id)}
+                    onClick={() => handleDeleteAddress(address._id)}
                   >
                     <Trash2 size={14} className="mr-1" />
                     Delete
@@ -230,7 +353,7 @@ export default function UserAddress() {
                   {!address.isDefault && (
                     <button 
                       className="text-sm text-orange-600 hover:text-orange-800 flex items-center"
-                      onClick={() => handleSetDefaultAddress(address.id)}
+                      onClick={() => handleSetDefaultAddress(address._id)}
                     >
                       <Check size={14} className="mr-1" />
                       Set as Default
@@ -284,6 +407,7 @@ export default function UserAddress() {
                 <button 
                   onClick={() => setShowAddressForm(false)}
                   className="text-gray-400 hover:text-gray-500"
+                  disabled={saving}
                 >
                   <X size={20} />
                 </button>
@@ -303,6 +427,7 @@ export default function UserAddress() {
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                       required
+                      disabled={saving}
                     />
                   </div>
 
@@ -318,6 +443,7 @@ export default function UserAddress() {
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                       required
+                      disabled={saving}
                     />
                   </div>
 
@@ -333,6 +459,7 @@ export default function UserAddress() {
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                       required
+                      disabled={saving}
                     />
                   </div>
 
@@ -347,6 +474,7 @@ export default function UserAddress() {
                       value={newAddress.addressLine2}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                      disabled={saving}
                     />
                   </div>
 
@@ -362,6 +490,7 @@ export default function UserAddress() {
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                       required
+                      disabled={saving}
                     />
                   </div>
 
@@ -377,6 +506,7 @@ export default function UserAddress() {
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                       required
+                      disabled={saving}
                     />
                   </div>
 
@@ -392,6 +522,7 @@ export default function UserAddress() {
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
                       required
+                      disabled={saving}
                     />
                   </div>
 
@@ -405,6 +536,7 @@ export default function UserAddress() {
                       value={newAddress.type}
                       onChange={handleInputChange}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-orange-500 focus:border-orange-500"
+                      disabled={saving}
                     >
                       <option value="Home">Home</option>
                       <option value="Work">Work</option>
@@ -422,6 +554,7 @@ export default function UserAddress() {
                         checked={newAddress.isDefault}
                         onChange={handleInputChange}
                         className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                        disabled={saving}
                       />
                       <label htmlFor="default-address" className="ml-2 block text-sm text-gray-900">
                         Set as default address
@@ -435,18 +568,19 @@ export default function UserAddress() {
                     type="button"
                     className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
                     onClick={() => setShowAddressForm(false)}
+                    disabled={saving}
                   >
                     Cancel
                   </button>
                   <button
                     type="button"
                     className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 ${
-                      !isFormValid() ? 'opacity-50 cursor-not-allowed' : ''
+                      !isFormValid() || saving ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                     onClick={handleSaveAddress}
-                    disabled={!isFormValid()}
+                    disabled={!isFormValid() || saving}
                   >
-                    Save Address
+                    {saving ? 'Saving...' : 'Save Address'}
                   </button>
                 </div>
               </div>
