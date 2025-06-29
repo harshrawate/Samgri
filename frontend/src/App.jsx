@@ -11,6 +11,7 @@ import Festival from "./pages/festival/Festival";
 import Blog from "./pages/blog/Blog";
 import Account from "./pages/account/Account";
 import Cart from "./pages/Cart";
+import CheckoutPage from "./pages/CheckoutPage";
 import About from "./pages/about/About";
 import BookPrist from "./pages/bookPrist/BookPrist";
 import PriestSelectionPage from "./components/bookPrist/PriestSelectionPage";
@@ -52,6 +53,8 @@ function App() {
         <Route path="/blog" element={<Blog/>} />
         <Route path="/account" element={ <ProtectedRoute>  <Account/> </ProtectedRoute>} />
         <Route path="/cart" element={<Cart/>} />
+        <Route path="/checkout-page" element={<CheckoutPage/>} />
+
         <Route path="about-us" element={<About/>} />
         <Route path="/book-prist" element={<BookPrist/>} />
         <Route path="/priest-selection" element={<PriestSelectionPage/>} />
