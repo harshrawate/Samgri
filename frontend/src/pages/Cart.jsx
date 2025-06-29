@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from "react-router-dom";
 import { X, ChevronRight, ShoppingBag, Plus, Minus, Tag, Truck, Shield, ArrowRight } from 'lucide-react';
 
 export default function Cart() {
@@ -6,6 +7,7 @@ export default function Cart() {
   const [loading, setLoading] = useState(true);
   const [couponCode, setCouponCode] = useState('');
   const [couponApplied, setCouponApplied] = useState(false);
+  const navigate = useNavigate();
 
   const fetchCart = async () => {
     try {
@@ -66,6 +68,10 @@ export default function Cart() {
     } catch (err) {
       console.error("Error deleting item:", err);
     }
+  };
+
+  const handleCheckout = () => {
+    navigate("/checkout-page");
   };
 
   const applyCoupon = () => {
@@ -282,9 +288,9 @@ export default function Cart() {
                   <span className="text-sm text-blue-800">Secure checkout with SSL encryption</span>
                 </div>
 
-                <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl py-4 font-semibold hover:shadow-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2 mb-4">
+                <button onClick={handleCheckout} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl py-4 font-semibold hover:shadow-lg transition-all duration-200 transform hover:scale-105 flex items-center justify-center gap-2 mb-4">
                   Proceed to Checkout
-                  <ArrowRight size={20} />
+                  <ArrowRight size={20} /> 
                 </button>
 
                 <button className="w-full border-2 border-gray-300 text-gray-700 rounded-xl py-3 font-medium hover:bg-gray-50 transition-colors duration-200">
