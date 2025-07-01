@@ -221,15 +221,14 @@ const CheckoutPage = () => {
         const transformedAddress = {
           id: savedAddresses.length,
           _id: data._id || data.address?._id,
-          name: newAddress.fullName,
-          phone: newAddress.mobile,
-          address: `${newAddress.addressLine1}${
-            newAddress.addressLine2 ? ", " + newAddress.addressLine2 : ""
-          }`,
-          city: newAddress.city,
-          state: newAddress.state,
-          pincode: newAddress.zipCode,
-          type: newAddress.type,
+          fullName: data.fullName,
+          mobile: data.mobile,
+          addressLine1: data.addressLine1,
+          addressLine2: data.addressLine2,
+          city: data.city,
+          state: data.state,
+          zipCode: data.zipCode,
+          type: data.type,
         };
 
         setSavedAddresses([...savedAddresses, transformedAddress]);
@@ -308,9 +307,22 @@ const CheckoutPage = () => {
 
     setProcessingOrder(true);
 
+    const selectedAddr = savedAddresses.find(
+      (addr) => addr.id === selectedAddress
+    );
+
     const orderData = {
       items: cart,
-      address: savedAddresses.find((addr) => addr.id === selectedAddress),
+      address: {
+        fullName: selectedAddr.name, // ✅ mapped
+        mobile: selectedAddr.phone,
+        addressLine1: selectedAddr.address.split(",")[0]?.trim() || "",
+        addressLine2: selectedAddr.address.split(",")[1]?.trim() || "",
+        city: selectedAddr.city,
+        state: selectedAddr.state,
+        zipCode: selectedAddr.pincode,
+        type: selectedAddr.type,
+      },
       paymentMethod,
       pricing: {
         subtotal,
@@ -392,7 +404,7 @@ const CheckoutPage = () => {
                     setCart([]);
                     // Redirect to order confirmation page
                     setTimeout(() => {
-                      window.location.href = `/order-confirmation/${data.orderId}`;
+                      window.location.href = `/order-history`;
                     }, 2000);
                   } else {
                     setShowAlert({
@@ -427,9 +439,13 @@ const CheckoutPage = () => {
             type: "success",
             message: "Order placed successfully! Cash on Delivery confirmed.",
           });
+          await fetch("http://localhost:5000/api/cart", {
+            method: "DELETE",
+            credentials: "include",
+          });
           setCart([]);
           setTimeout(() => {
-            window.location.href = `/order-confirmation/${data.orderId}`;
+            window.location.href = `/order-history`;
           }, 2000);
         }
       } else {
@@ -458,7 +474,7 @@ const CheckoutPage = () => {
       }
       setCart([]);
       setTimeout(() => {
-        window.location.href = `/order-confirmation/${data.orderId}`;
+        window.location.href = `/order-history`;
       }, 2000);
     } finally {
       setProcessingOrder(false);

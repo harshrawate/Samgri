@@ -28,11 +28,13 @@ router.post('/addProducts', multiUpload, createProduct);
 
 router.get('/getProducts', getProducts);
 
+router.get('/related', getRelatedProducts);
+
 router.delete('/:id', deleteProduct);
 
 router.put('/:id', multiUpload, updateProduct);
 
-router.get('/related', getRelatedProducts);
+
 
 router.get('/:id', getProductById);
 

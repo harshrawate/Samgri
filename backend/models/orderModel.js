@@ -1,5 +1,16 @@
 import mongoose from "mongoose";
 
+const addressSchema = new mongoose.Schema({
+  fullName: String,
+  mobile: String,
+  addressLine1: String,
+  addressLine2: String,
+  city: String,
+  state: String,
+  zipCode: String,
+  type: String,
+}, { _id: false }); // Prevents nested _id field
+
 const orderSchema = new mongoose.Schema({
   user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
   items: [
@@ -11,16 +22,7 @@ const orderSchema = new mongoose.Schema({
       quantity: Number,
     }
   ],
-  address: {
-    fullName: String,
-    mobile: String,
-    addressLine1: String,
-    addressLine2: String,
-    city: String,
-    state: String,
-    zipCode: String,
-    type: String
-  },
+  address: addressSchema, // ✅ Embed the correct address schema here
   paymentMethod: { type: String, enum: ["razorpay", "cod"], required: true },
   pricing: {
     subtotal: Number,
@@ -40,3 +42,4 @@ const orderSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 export default mongoose.model("Order", orderSchema);
+
