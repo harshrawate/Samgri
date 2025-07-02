@@ -84,3 +84,17 @@ export const getUserOrders = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch orders" });
   }
 };
+
+export const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find({})
+      .populate("user", "name email")
+      .populate("items.productId", "title")
+      .populate("address");
+    res.status(200).json(orders);
+  } catch (err) {
+    console.error("Error fetching all orders:", err);
+    res.status(500).json({ message: "Failed to fetch orders" });
+  }
+};
+

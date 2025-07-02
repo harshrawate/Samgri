@@ -154,6 +154,6 @@ const AdminUsersPage = () => {
       </footer>
     </div>
   );
-};
+}; 
 
 export default AdminUsersPage;
