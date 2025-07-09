@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Search, ShoppingCart, User, Menu, X } from 'lucide-react';
 import { useCart } from '../context/CartContext.jsx';
 
-
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { cartCount } = useCart();
@@ -29,7 +28,7 @@ export default function Navbar() {
             <a href="/about-us" className="text-gray-600 hover:text-gray-900">About Us</a>
           </div>
 
-          {/* Search and Icons */}
+          {/* Search and Icons (Desktop) */}
           <div className="hidden md:flex items-center space-x-4">
             <div className="relative">
               <input
@@ -45,10 +44,10 @@ export default function Navbar() {
             <a href="/cart" className="text-gray-600 hover:text-gray-900 relative">
               <ShoppingCart size={20} />
               {cartCount > 0 && (
-  <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-    {cartCount}
-  </span>
-)}
+                <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
             </a>
           </div>
 
@@ -56,9 +55,11 @@ export default function Navbar() {
           <div className="md:hidden flex items-center space-x-4">
             <a href="/cart" className="text-gray-600 hover:text-gray-900 relative">
               <ShoppingCart size={20} />
-              <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                3
-              </span>
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-orange-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
             </a>
             <button 
               onClick={toggleMenu}
