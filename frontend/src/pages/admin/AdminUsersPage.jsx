@@ -1,16 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-  Search,
-  Eye,
-  Trash2,
-  Download,
-  UserCog,
-  ShieldCheck,
-  Ban,
+  Search, Eye, Trash2, Download
 } from "lucide-react";
+import axios from "axios";
 
 const AdminUsersPage = () => {
+  const [users, setUsers] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axios.get("http://localhost:5000/api/users", {
+          withCredentials: true, // if using cookies
+        });
+        setUsers(res.data.users);
+      } catch (err) {
+        console.error("Failed to fetch users", err);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
 
   return (
     <div className="bg-gray-50 min-h-screen p-6">
@@ -67,21 +80,36 @@ const AdminUsersPage = () => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td className="p-2">U001</td>
-              <td className="p-2"><img src="/images/user.jpg" alt="user" className="w-10 h-10 object-cover rounded-full" /></td>
-              <td className="p-2">John Doe</td>
-              <td className="p-2">john@example.com</td>
-              <td className="p-2">+91 9876543210</td>
-              <td className="p-2">Mumbai</td>
-              <td className="p-2">User</td>
-              <td className="p-2 text-green-600">Active</td>
-              <td className="p-2">2024-01-10</td>
-              <td className="p-2 space-x-2">
-                <button onClick={() => setShowModal(true)}><Eye size={16} /></button>
-                <button><Trash2 size={16} className="text-red-600" /></button>
-              </td>
-            </tr>
+            {users.map((user) => (
+  <tr key={user._id} className="border-b">
+    <td className="p-2">{user._id}</td>
+    <td className="p-2">
+      <img
+        src={user.photo || "/images/user.jpg"}
+        alt={user.name}
+        className="w-10 h-10 object-cover rounded-full"
+      />
+    </td>
+    <td className="p-2">{user.name}</td>
+    <td className="p-2">{user.email}</td>
+    <td className="p-2">{user.phone || "N/A"}</td>
+    <td className="p-2">{user.city || "N/A"}</td>
+    <td className="p-2">{user.role}</td>
+    <td className="p-2 text-green-600">{user.status || "Active"}</td>
+    <td className="p-2">{new Date(user.createdAt).toLocaleDateString()}</td>
+    <td className="p-2 space-x-2">
+      <button
+        onClick={() => {
+          setSelectedUser(user);
+          setShowModal(true);
+        }}
+      >
+        <Eye size={16} />
+      </button>
+      <button><Trash2 size={16} className="text-red-600" /></button>
+    </td>
+  </tr>
+))}
           </tbody>
         </table>
       </div>
@@ -98,55 +126,59 @@ const AdminUsersPage = () => {
       </div>
 
       {/* Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white w-full max-w-2xl rounded-lg p-6 relative">
-            <h2 className="text-xl font-bold mb-4">User Details</h2>
-            <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium">Full Name</label>
-                  <p className="border px-2 py-1 rounded">John Doe</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium">Email</label>
-                  <p className="border px-2 py-1 rounded">john@example.com</p>
-                </div>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium">Phone</label>
-                  <p className="border px-2 py-1 rounded">+91 9876543210</p>
-                </div>
-                <div>
-                  <label className="block text-sm font-medium">City</label>
-                  <p className="border px-2 py-1 rounded">Mumbai</p>
-                </div>
-              </div>
-              <div>
-                <label className="block text-sm font-medium">Change Role</label>
-                <select className="w-full border px-2 py-1 rounded">
-                  <option>User</option>
-                  <option>Admin</option>
-                </select>
-              </div>
-              <div className="flex items-center gap-4">
-                <button className="px-4 py-2 bg-green-500 text-white rounded">Activate</button>
-                <button className="px-4 py-2 bg-red-500 text-white rounded">Deactivate</button>
-              </div>
-              <div className="flex justify-end gap-4">
-                <button
-                  onClick={() => setShowModal(false)}
-                  className="px-4 py-2 rounded border"
-                >
-                  Close
-                </button>
-                <button className="px-4 py-2 bg-orange-500 text-white rounded">Save Changes</button>
-              </div>
-            </div>
+      {showModal && selectedUser && (
+  <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white w-full max-w-2xl rounded-lg p-6 relative">
+      <h2 className="text-xl font-bold mb-4">User Details</h2>
+      <div className="space-y-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium">Full Name</label>
+            <p className="border px-2 py-1 rounded">{selectedUser.name}</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium">Email</label>
+            <p className="border px-2 py-1 rounded">{selectedUser.email}</p>
           </div>
         </div>
-      )}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium">Phone</label>
+            <p className="border px-2 py-1 rounded">{selectedUser.phone || "N/A"}</p>
+          </div>
+          <div>
+            <label className="block text-sm font-medium">City</label>
+            <p className="border px-2 py-1 rounded">{selectedUser.city || "N/A"}</p>
+          </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium">Change Role</label>
+          <select className="w-full border px-2 py-1 rounded">
+            <option>User</option>
+            <option>Admin</option>
+          </select>
+        </div>
+        <div className="flex items-center gap-4">
+          <button className="px-4 py-2 bg-green-500 text-white rounded">Activate</button>
+          <button className="px-4 py-2 bg-red-500 text-white rounded">Deactivate</button>
+        </div>
+        <div className="flex justify-end gap-4">
+          <button
+            onClick={() => {
+              setShowModal(false);
+              setSelectedUser(null);
+            }}
+            className="px-4 py-2 rounded border"
+          >
+            Close
+          </button>
+          <button className="px-4 py-2 bg-orange-500 text-white rounded">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
+
 
       {/* Footer */}
       <footer className="mt-12 text-center text-gray-500 text-sm">
