@@ -10,3 +10,22 @@ export const getAllUsers = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to fetch users" });
   }
 };
+
+export const updateUserByAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { role },
+      { new: true }
+    );
+
+    res.status(200).json({ success: true, user: updatedUser });
+  } catch (err) {
+    console.error("Error updating user:", err);
+    res.status(500).json({ success: false, message: "Failed to update user" });
+  }
+};
+
