@@ -10,6 +10,7 @@ import productRoutes from './routes/productRoutes.js';
 import cartRoutes from './routes/cartRoutes.js';
 import addressRoutes from './routes/addressRoutes.js';
 import orderRoutes from "./routes/orderRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 
 // Load environment variables from .env file
 dotenv.config();
@@ -40,6 +41,8 @@ app.use('/api/product', productRoutes);
 app.use('/api/cart', cartRoutes);
 app.use('/api/addresses', addressRoutes);
 app.use("/api/orders", orderRoutes);
+app.use("/api/users", userRoutes);
+
 
 
 // Example route setup (uncomment when routes are ready)
