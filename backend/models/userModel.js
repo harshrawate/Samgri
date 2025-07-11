@@ -7,10 +7,15 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true, select: false },
   role: { type: String, enum: ["user", "admin"], default: "user" },
 
-  // ✅ Add these two fields for password reset
+  phone: { type: String },
+  gender: { type: String },
+  dateOfBirth: { type: Date },
+  religion: { type: String },
+  language: { type: String },
+  profileImage: { type: String }, // base64 or URL
+
   resetPasswordToken: { type: String },
   resetPasswordExpire: { type: Date },
-
 }, { timestamps: true });
 
 // ✅ Hash password before saving

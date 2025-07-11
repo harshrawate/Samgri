@@ -29,3 +29,33 @@ export const updateUserByAdmin = async (req, res) => {
   }
 };
 
+
+export const updateUserProfile = async (req, res) => {
+  const userId = req.user._id;
+
+  const updates = {
+    name: req.body.fullName,
+    phone: req.body.phone,
+    gender: req.body.gender,
+    dateOfBirth: req.body.dateOfBirth,
+    religion: req.body.religion,
+    language: req.body.language,
+    profileImage: req.body.profileImage, // optional: base64 or URL
+  };
+
+  try {
+    const updatedUser = await User.findByIdAndUpdate(userId, updates, {
+      new: true,
+      runValidators: true,
+    }).select("-password");
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Profile update error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+

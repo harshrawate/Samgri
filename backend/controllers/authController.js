@@ -121,6 +121,8 @@ export const loginUser = async (req, res) => {
 export const getMyProfile = (req, res) => {
   const user = req.user;
 
+  console.log(user);
+
   res.status(200).json({
     success: true,
     user: {
@@ -128,6 +130,12 @@ export const getMyProfile = (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      dateOfBirth:user.dateOfBirth,
+      gender:user.gender,
+      language:user.language,
+      phone:user.phone,
+      profileImage:user.profileImage,
+      religion:user.religion,
     },
   });
 };

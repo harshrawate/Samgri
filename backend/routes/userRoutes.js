@@ -1,11 +1,15 @@
 import express from "express";
-import { getAllUsers,updateUserByAdmin } from "../controllers/userController.js";
+import { getAllUsers,updateUserByAdmin,updateUserProfile } from "../controllers/userController.js";
 import { isAuthenticated,isAdmin } from "../middleware/isAuthenticated.js";
 
 const router = express.Router();
 
-router.get("/", isAuthenticated, isAdmin, getAllUsers); // Admin only
+router.put("/update-profile", isAuthenticated, updateUserProfile);
 
 router.put("/:id", updateUserByAdmin); // Add middleware later (isAdmin)
+
+router.get("/", isAuthenticated, isAdmin, getAllUsers); // Admin only
+
+
 
 export default router;

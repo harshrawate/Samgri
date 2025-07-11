@@ -1,17 +1,61 @@
-import { useState } from 'react';
-import { Upload, Calendar, User, Mail, Phone, Globe, BookOpen } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import {
+  Upload,
+  Calendar,
+  User,
+  Mail,
+  Phone,
+  Globe,
+  BookOpen,
+} from 'lucide-react';
 
 export default function ProfileSettings() {
+  const [loading, setLoading] = useState(true);
   const [profileImage, setProfileImage] = useState(null);
   const [formData, setFormData] = useState({
-    fullName: 'John Doe',
-    email: 'john.doe@example.com',
-    phone: '+1 (555) 123-4567',
-    gender: 'male',
-    dateOfBirth: '1990-01-01',
-    religion: 'Hindu',
-    language: 'English'
+    fullName: '',
+    email: '',
+    phone: '',
+    gender: '',
+    dateOfBirth: '',
+    religion: '',
+    language: '',
   });
+
+  // Fetch user data
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const res = await fetch('http://localhost:5000/api/auth/me', {
+          credentials: 'include',
+        });
+        const data = await res.json();
+
+        console.log(data);
+
+        if (res.ok) {
+          setFormData({
+            fullName: data.user.name || '',
+            email: data.user.email || '',
+            phone: data.user.phone || '',
+            gender: data.user.gender || '',
+            dateOfBirth: data.user.dateOfBirth?.slice(0, 10) || '',
+            religion: data.user.religion || '',
+            language: data.user.language || '',
+          });
+          setProfileImage(data.user.profileImage || null);
+        } else {
+          console.error(data.message);
+        }
+      } catch (error) {
+        console.error('Failed to load profile:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, []);
 
   const handleImageChange = (e) => {
     if (e.target.files && e.target.files[0]) {
@@ -25,18 +69,40 @@ export default function ProfileSettings() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission logic here
-    console.log('Form submitted:', formData);
-    alert('Profile updated successfully!');
+    try {
+      const res = await fetch('http://localhost:5000/api/users/update-profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          ...formData,
+          profileImage: profileImage,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert('Profile updated successfully!');
+      } else {
+        alert(data.message || 'Something went wrong');
+      }
+    } catch (err) {
+      console.error('Update error:', err);
+      alert('Server error');
+    }
   };
+
+  if (loading) return <div className="text-center py-10">Loading profile...</div>;
 
   return (
     <div className="bg-gray-50 min-h-screen py-8 px-4">
@@ -57,21 +123,24 @@ export default function ProfileSettings() {
                   <User size={64} className="text-gray-400" />
                 )}
               </div>
-              <label htmlFor="profile-upload" className="absolute bottom-0 right-0 bg-orange-500 hover:bg-orange-600 text-white p-2 rounded-full cursor-pointer">
+              <label
+                htmlFor="profile-upload"
+                className="absolute bottom-0 right-0 bg-orange-500 hover:bg-orange-600 text-white p-2 rounded-full cursor-pointer"
+              >
                 <Upload size={16} />
               </label>
-              <input 
-                id="profile-upload" 
-                type="file" 
-                className="hidden" 
-                accept="image/*" 
-                onChange={handleImageChange} 
+              <input
+                id="profile-upload"
+                type="file"
+                className="hidden"
+                accept="image/*"
+                onChange={handleImageChange}
               />
             </div>
             <div className="text-center md:text-left">
               <h2 className="text-xl font-semibold">{formData.fullName}</h2>
               <p className="text-gray-500">{formData.email}</p>
-              <button 
+              <button
                 type="button"
                 className="mt-2 text-sm text-orange-500 hover:text-orange-600 flex items-center justify-center md:justify-start"
                 onClick={() => document.getElementById('profile-upload').click()}
@@ -82,11 +151,11 @@ export default function ProfileSettings() {
             </div>
           </div>
 
-          {/* Editable Fields Section */}
+          {/* Editable Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Full Name */}
             <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+              <label className="text-sm font-medium text-gray-700 mb-1 flex items-center">
                 <User size={16} className="mr-2" />
                 Full Name
               </label>
@@ -100,9 +169,9 @@ export default function ProfileSettings() {
               />
             </div>
 
-            {/* Email Address */}
+            {/* Email (read-only) */}
             <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+              <label className="text-sm font-medium text-gray-700 mb-1 flex items-center">
                 <Mail size={16} className="mr-2" />
                 Email Address
               </label>
@@ -116,9 +185,9 @@ export default function ProfileSettings() {
               <p className="text-xs text-gray-500 mt-1">Contact support to change email</p>
             </div>
 
-            {/* Phone Number */}
+            {/* Phone */}
             <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+              <label className="text-sm font-medium text-gray-700 mb-1 flex items-center">
                 <Phone size={16} className="mr-2" />
                 Phone Number
               </label>
@@ -148,9 +217,9 @@ export default function ProfileSettings() {
               </select>
             </div>
 
-            {/* Date of Birth */}
+            {/* DOB */}
             <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+              <label className="text-sm font-medium text-gray-700 mb-1 flex items-center">
                 <Calendar size={16} className="mr-2" />
                 Date of Birth (Optional)
               </label>
@@ -163,9 +232,9 @@ export default function ProfileSettings() {
               />
             </div>
 
-            {/* Preferred Religion */}
+            {/* Religion */}
             <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+              <label className="text-sm font-medium text-gray-700 mb-1 flex items-center">
                 <BookOpen size={16} className="mr-2" />
                 Preferred Religion
               </label>
@@ -186,9 +255,9 @@ export default function ProfileSettings() {
               </select>
             </div>
 
-            {/* Preferred Language */}
+            {/* Language */}
             <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 mb-1 flex items-center">
+              <label className="text-sm font-medium text-gray-700 mb-1 flex items-center">
                 <Globe size={16} className="mr-2" />
                 Preferred Language (Optional)
               </label>
@@ -211,16 +280,16 @@ export default function ProfileSettings() {
             </div>
           </div>
 
-          {/* Form Actions */}
+          {/* Submit */}
           <div className="mt-8 flex flex-col space-y-3 sm:flex-row sm:space-y-0 sm:space-x-3 justify-end">
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               Cancel
             </button>
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
               Save Changes
