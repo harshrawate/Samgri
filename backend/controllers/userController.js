@@ -29,7 +29,6 @@ export const updateUserByAdmin = async (req, res) => {
   }
 };
 
-
 export const updateUserProfile = async (req, res) => {
   const userId = req.user._id;
 
@@ -40,8 +39,12 @@ export const updateUserProfile = async (req, res) => {
     dateOfBirth: req.body.dateOfBirth,
     religion: req.body.religion,
     language: req.body.language,
-    profileImage: req.body.profileImage, // optional: base64 or URL
   };
+
+  // If a profile image was uploaded, set the URL
+  if (req.file) {
+    updates.profileImage = req.file.path; // Cloudinary URL
+  }
 
   try {
     const updatedUser = await User.findByIdAndUpdate(userId, updates, {
@@ -58,4 +61,3 @@ export const updateUserProfile = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
-

@@ -12,6 +12,8 @@ import {
 export default function ProfileSettings() {
   const [loading, setLoading] = useState(true);
   const [profileImage, setProfileImage] = useState(null);
+  const [profileImageFile, setProfileImageFile] = useState(null); // Store actual image file
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -30,8 +32,6 @@ export default function ProfileSettings() {
           credentials: 'include',
         });
         const data = await res.json();
-
-        console.log(data);
 
         if (res.ok) {
           setFormData({
@@ -58,12 +58,14 @@ export default function ProfileSettings() {
   }, []);
 
   const handleImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
+    const file = e.target.files?.[0];
+    if (file) {
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfileImage(e.target.result);
+      reader.onload = (event) => {
+        setProfileImage(event.target.result); // For preview
       };
-      reader.readAsDataURL(e.target.files[0]);
+      reader.readAsDataURL(file);
+      setProfileImageFile(file); // For upload
     }
   };
 
@@ -77,17 +79,23 @@ export default function ProfileSettings() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const formDataToSend = new FormData();
+    formDataToSend.append('fullName', formData.fullName);
+    formDataToSend.append('phone', formData.phone);
+    formDataToSend.append('gender', formData.gender);
+    formDataToSend.append('dateOfBirth', formData.dateOfBirth);
+    formDataToSend.append('religion', formData.religion);
+    formDataToSend.append('language', formData.language);
+    if (profileImageFile) {
+      formDataToSend.append('profileImage', profileImageFile);
+    }
+
     try {
       const res = await fetch('http://localhost:5000/api/users/update-profile', {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         credentials: 'include',
-        body: JSON.stringify({
-          ...formData,
-          profileImage: profileImage,
-        }),
+        body: formDataToSend,
       });
 
       const data = await res.json();
