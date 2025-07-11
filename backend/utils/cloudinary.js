@@ -17,6 +17,15 @@ const imageStorage = new CloudinaryStorage({
   },
 });
 
+const profileImageStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'samgri/profiles', // <-- store separately
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+    resource_type: 'image',
+  },
+});
+
 const videoStorage = new CloudinaryStorage({
   cloudinary,
   params: {
@@ -27,6 +36,7 @@ const videoStorage = new CloudinaryStorage({
 });
 
 const uploadImages = multer({ storage: imageStorage });
+const uploadProfileImage = multer({ storage: profileImageStorage });
 const uploadVideos = multer({ storage: videoStorage });
 
-export { cloudinary, uploadImages, uploadVideos };
+export { cloudinary, uploadImages, uploadProfileImage ,uploadVideos };
