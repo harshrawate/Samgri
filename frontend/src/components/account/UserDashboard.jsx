@@ -56,7 +56,7 @@ export default function UserDashboard() {
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 rounded-full overflow-hidden">
               <img 
-                src="/api/placeholder/48/48" 
+                src={user?.profileImage}
                 alt="Profile" 
                 className="w-full h-full object-cover" 
               />
