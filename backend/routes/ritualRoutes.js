@@ -2,7 +2,7 @@
 import express from "express";
 import {
   createRitual,
-  getAllRituals,
+  getAllRituals,updateRitual,deleteRitual,
 } from "../controllers/ritualController.js";
 import { isAuthenticated,isAdmin } from "../middleware/isAuthenticated.js";
 import { uploadRitualImage } from "../utils/cloudinary.js";
@@ -18,5 +18,20 @@ router.post(
 );
 
 router.get("/", getAllRituals);
+
+router.put(
+  "/:id",
+  isAuthenticated,
+  isAdmin,
+  uploadRitualImage.single("image"), // If image upload supported on update
+  updateRitual
+);
+
+router.delete(
+  "/:id",
+  isAuthenticated,
+  isAdmin,
+  deleteRitual
+);
 
 export default router;

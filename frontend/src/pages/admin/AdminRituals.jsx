@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Search,
   Plus,
@@ -11,19 +11,24 @@ import {
   X,
 } from "lucide-react";
 
+const initialFilters = {
+  search: "",
+  religion: "",
+  category: "",
+  popularity: "",
+  priceSort: "",
+};
+
 const AdminRituals = () => {
   const [rituals, setRituals] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
+  const [filters, setFilters] = useState(initialFilters);
+  const [editRitual, setEditRitual] = useState(null);
 
-  const [filters, setFilters] = useState({
-    search: "",
-    religion: "",
-    category: "",
-    popularity: "",
-    priceSort: "",
-  });
+  // This is used for cleaning the file input. Otherwise `defaultValue`/`value` won't work.
+  const fileInputRef = useRef();
 
   useEffect(() => {
     fetchAll();
@@ -33,7 +38,6 @@ const AdminRituals = () => {
     applyFilters();
   }, [filters, rituals]);
 
-  // Fetch all rituals from backend
   const fetchAll = async () => {
     try {
       const res = await fetch("http://localhost:5000/api/rituals", {
@@ -48,7 +52,6 @@ const AdminRituals = () => {
     }
   };
 
-  // Apply client-side filters and sorting
   const applyFilters = () => {
     let arr = [...rituals];
     const { search, religion, category, popularity, priceSort } = filters;
@@ -70,19 +73,65 @@ const AdminRituals = () => {
     setFiltered(arr);
   };
 
+  // ---- Delete Ritual ----
+  const handleDelete = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this ritual?")) return;
+    try {
+      const res = await fetch(`http://localhost:5000/api/rituals/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
+      const data = await res.json();
+      if (data.success) {
+        fetchAll();
+      } else {
+        alert(data.message || "Failed to delete ritual.");
+      }
+    } catch (e) {
+      alert("Error deleting ritual");
+      console.error(e);
+    }
+  };
+
+  // ---- Show Edit Modal ----
+  const openEditModal = (ritual) => {
+    setEditRitual(ritual);
+    setShowModal(true);
+    setImagePreview(ritual.image?.url || null);
+    setTimeout(() => {
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }, 100);
+  };
+
+  // ---- Reset modal ----
+  const closeModal = () => {
+    setShowModal(false);
+    setEditRitual(null);
+    setImagePreview(null);
+    setTimeout(() => {
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }, 100);
+  };
+
+  // ---- Add Ritual ----
   const handleSubmit = async (e) => {
     e.preventDefault();
     const form = new FormData(e.target);
 
     try {
-      const res = await fetch("http://localhost:5000/api/rituals/addRitual", {
-        method: "POST",
-        body: form,
-        credentials: "include",
-      });
+      const res = await fetch(
+        "http://localhost:5000/api/rituals/addRitual",
+        {
+          method: "POST",
+          body: form,
+          credentials: "include",
+        }
+      );
       const data = await res.json();
       if (data.success) {
-        setShowModal(false);
+        closeModal();
         e.target.reset();
         fetchAll();
       } else alert("Failed to add ritual.");
@@ -91,13 +140,43 @@ const AdminRituals = () => {
     }
   };
 
+  // ---- Edit Ritual (Update) ----
+  const handleUpdate = async (e) => {
+    e.preventDefault();
+    const form = new FormData(e.target);
+
+    try {
+      const res = await fetch(
+        `http://localhost:5000/api/rituals/${editRitual._id}`,
+        {
+          method: "PUT",
+          body: form,
+          credentials: "include",
+        }
+      );
+      const data = await res.json();
+      if (data.success) {
+        closeModal();
+        e.target.reset();
+        fetchAll();
+      } else alert("Failed to update ritual.");
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  // -- Modal Form helper (default values for edit, blank for add) --
+  const modalFieldValue = (fn) =>
+    editRitual && fn(editRitual) ? fn(editRitual) : "";
+
+  // -- Main render --
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-red-50">
-      {/* Header with gradient background */}
+      {/* Header */}
       <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-6 shadow-lg">
         <div className="max-w-7xl mx-auto">
           <p className="text-orange-100 text-sm mb-2 flex items-center">
-            Home / Admin / <span className="text-white ml-1">Rituals</span>
+            Home / Admin /<span className="text-white ml-1">Rituals</span>
           </p>
           <h1 className="text-3xl font-bold flex items-center gap-3">
             <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
@@ -111,11 +190,11 @@ const AdminRituals = () => {
         </div>
       </div>
 
-      {/* Enhanced Toolbar */}
+      {/* Toolbar */}
       <div className="bg-white rounded-xl shadow-lg p-6 mb-8 border border-gray-100">
         <div className="flex flex-col lg:flex-row items-start lg:items-center gap-6 justify-between">
           <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
-            {/* Search with enhanced styling */}
+            {/* Search */}
             <div className="relative group">
               <input
                 type="text"
@@ -126,13 +205,10 @@ const AdminRituals = () => {
                   setFilters({ ...filters, search: e.target.value })
                 }
               />
-              <Search
-                className="absolute left-4 top-3.5 text-gray-400 group-focus-within:text-orange-500 transition-colors"
-                size={20}
-              />
+              <Search className="absolute left-4 top-3.5 text-gray-400 group-focus-within:text-orange-500 transition-colors" size={20} />
             </div>
 
-            {/* Enhanced filters */}
+            {/* Filters */}
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Filter size={16} />
               <span className="font-medium">Filters:</span>
@@ -195,17 +271,22 @@ const AdminRituals = () => {
               <option value="high">High → Low</option>
             </select>
           </div>
-
-          {/* Enhanced Add Button */}
+          {/* Add Button */}
           <button
-            onClick={() => setShowModal(true)}
+            onClick={() => {
+              setEditRitual(null);
+              setImagePreview(null);
+              setShowModal(true);
+              setTimeout(() => {
+                if (fileInputRef.current) fileInputRef.current.value = "";
+              }, 100);
+            }}
             className="flex items-center gap-3 bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-xl hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 font-medium"
           >
             <Plus size={20} /> Add New Ritual
           </button>
         </div>
-
-        {/* Stats Cards */}
+        {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6 pt-6 border-t border-gray-100">
           <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white p-4 rounded-lg">
             <div className="text-2xl font-bold">{rituals.length}</div>
@@ -230,7 +311,7 @@ const AdminRituals = () => {
         </div>
       </div>
 
-      {/* Enhanced Table */}
+      {/* Rituals Table */}
       <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100">
         <div className="overflow-x-auto">
           <table className="min-w-full">
@@ -297,10 +378,7 @@ const AdminRituals = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1">
-                        <Star
-                          className="text-yellow-400 fill-current"
-                          size={16}
-                        />
+                        <Star className="text-yellow-400 fill-current" size={16} />
                         <span className="text-sm font-medium">
                           {r.popularity ?? "0"}
                         </span>
@@ -319,13 +397,21 @@ const AdminRituals = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <button className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors">
+                        <button
+                          className="p-2 text-blue-600 hover:bg-blue-100 rounded-lg transition-colors"
+                        >
                           <Eye size={16} />
                         </button>
-                        <button className="p-2 text-orange-600 hover:bg-orange-100 rounded-lg transition-colors">
+                        <button
+                          className="p-2 text-orange-600 hover:bg-orange-100 rounded-lg transition-colors"
+                          onClick={() => openEditModal(r)}
+                        >
                           <Edit size={16} />
                         </button>
-                        <button className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors">
+                        <button
+                          className="p-2 text-red-600 hover:bg-red-100 rounded-lg transition-colors"
+                          onClick={() => handleDelete(r._id)}
+                        >
                           <Trash2 size={16} />
                         </button>
                       </div>
@@ -350,33 +436,37 @@ const AdminRituals = () => {
         </div>
       </div>
 
-      {/* Enhanced Modal */}
+      {/* Modal */}
       {showModal && (
         <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4">
           <div className="bg-white w-full max-w-2xl rounded-2xl shadow-2xl relative max-h-[90vh] overflow-y-auto">
-            <form onSubmit={handleSubmit} encType="multipart/form-data">
+            <form
+              onSubmit={editRitual ? handleUpdate : handleSubmit}
+              encType="multipart/form-data"
+            >
               {/* Modal Header */}
               <div className="bg-gradient-to-r from-orange-500 to-red-500 text-white p-6 rounded-t-2xl">
                 <div className="flex justify-between items-center">
                   <div>
                     <h2 className="text-2xl font-bold flex items-center gap-3">
-                      <Plus size={24} />
-                      Add New Ritual
+                      {editRitual ? <Edit size={24} /> : <Plus size={24} />}
+                      {editRitual ? "Edit Ritual" : "Add New Ritual"}
                     </h2>
                     <p className="text-orange-100 mt-1">
-                      Create a new spiritual ritual offering
+                      {editRitual
+                        ? "Update details for this ritual"
+                        : "Create a new spiritual ritual offering"}
                     </p>
                   </div>
                   <button
                     type="button"
-                    onClick={() => setShowModal(false)}
+                    onClick={closeModal}
                     className="text-white hover:bg-white/20 p-2 rounded-lg transition-colors"
                   >
                     <X size={24} />
                   </button>
                 </div>
               </div>
-
               {/* Modal Content */}
               <div className="p-6 space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -387,6 +477,7 @@ const AdminRituals = () => {
                     </label>
                     <input
                       name="title"
+                      defaultValue={modalFieldValue((r) => r.title)}
                       className="w-full border-2 border-gray-200 px-4 py-3 rounded-lg focus:border-orange-400 focus:ring-4 focus:ring-orange-100 transition-all duration-200"
                       placeholder="Enter ritual title"
                       required
@@ -400,6 +491,7 @@ const AdminRituals = () => {
                     </label>
                     <select
                       name="religion"
+                      defaultValue={modalFieldValue((r) => r.religion)}
                       className="w-full border-2 border-gray-200 px-4 py-3 rounded-lg focus:border-orange-400 focus:ring-4 focus:ring-orange-100 transition-all duration-200"
                       required
                     >
@@ -426,6 +518,7 @@ const AdminRituals = () => {
                     </label>
                     <input
                       name="category"
+                      defaultValue={modalFieldValue((r) => r.category)}
                       className="w-full border-2 border-gray-200 px-4 py-3 rounded-lg focus:border-orange-400 focus:ring-4 focus:ring-orange-100 transition-all duration-200"
                       placeholder="e.g., Puja, Ceremony"
                     />
@@ -439,6 +532,7 @@ const AdminRituals = () => {
                     <input
                       name="price"
                       type="number"
+                      defaultValue={modalFieldValue((r) => r.price)}
                       className="w-full border-2 border-gray-200 px-4 py-3 rounded-lg focus:border-orange-400 focus:ring-4 focus:ring-orange-100 transition-all duration-200"
                       placeholder="0"
                       required
@@ -453,18 +547,22 @@ const AdminRituals = () => {
                     </label>
                     <input
                       name="duration"
+                      defaultValue={modalFieldValue((r) => r.duration)}
                       className="w-full border-2 border-gray-200 px-4 py-3 rounded-lg focus:border-orange-400 focus:ring-4 focus:ring-orange-100 transition-all duration-200"
                       placeholder="e.g., 2 hours, 1 day"
                     />
                   </div>
 
-                  {/* Popularity - NEW FIELD */}
+                  {/* Popularity */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
                       Popularity Rating
                     </label>
                     <select
                       name="popularity"
+                      defaultValue={modalFieldValue((r) =>
+                        r.popularity ? r.popularity : ""
+                      )}
                       className="w-full border-2 border-gray-200 px-4 py-3 rounded-lg focus:border-orange-400 focus:ring-4 focus:ring-orange-100 transition-all duration-200"
                     >
                       <option value="">Select Rating</option>
@@ -493,6 +591,12 @@ const AdminRituals = () => {
                     </label>
                     <input
                       name="festivals"
+                      defaultValue={modalFieldValue(
+                        (r) =>
+                          Array.isArray(r.festivals)
+                            ? r.festivals.join(", ")
+                            : r.festivals
+                      )}
                       className="w-full border-2 border-gray-200 px-4 py-3 rounded-lg focus:border-orange-400 focus:ring-4 focus:ring-orange-100 transition-all duration-200"
                       placeholder="e.g., Diwali, Holi"
                     />
@@ -507,6 +611,7 @@ const AdminRituals = () => {
                   <textarea
                     name="description"
                     rows="4"
+                    defaultValue={modalFieldValue((r) => r.description)}
                     className="w-full border-2 border-gray-200 px-4 py-3 rounded-lg focus:border-orange-400 focus:ring-4 focus:ring-orange-100 transition-all duration-200"
                     placeholder="Describe the ritual, its significance, and what it includes..."
                     required
@@ -519,7 +624,7 @@ const AdminRituals = () => {
                     htmlFor="imageUpload"
                     className="block text-sm font-semibold text-gray-700 mb-2"
                   >
-                    Ritual Image *
+                    Ritual Image {editRitual ? "" : "*"}
                   </label>
 
                   <label
@@ -538,14 +643,14 @@ const AdminRituals = () => {
                       />
                     )}
                   </label>
-
                   <input
                     id="imageUpload"
                     name="image"
                     type="file"
                     accept="image/*"
-                    required
+                    ref={fileInputRef}
                     className="hidden"
+                    {...(!editRitual && { required: true })}
                     onChange={(e) => {
                       const file = e.target.files[0];
                       if (file) {
@@ -555,13 +660,13 @@ const AdminRituals = () => {
                         };
                         reader.readAsDataURL(file);
                       } else {
-                        setImagePreview(null);
+                        setImagePreview(editRitual?.image?.url || null);
                       }
                     }}
                   />
                 </div>
 
-                {/* SEO Section */}
+                {/* SEO */}
                 <div className="bg-gray-50 p-6 rounded-lg">
                   <h3 className="text-lg font-semibold text-gray-700 mb-4 flex items-center gap-2">
                     <Search size={20} />
@@ -574,6 +679,7 @@ const AdminRituals = () => {
                       </label>
                       <input
                         name="seo[keywords]"
+                        defaultValue={modalFieldValue((r) => r.seo?.keywords)}
                         placeholder="ritual, puja, ceremony, spiritual"
                         className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
                       />
@@ -584,6 +690,7 @@ const AdminRituals = () => {
                       </label>
                       <input
                         name="seo[metaTitle]"
+                        defaultValue={modalFieldValue((r) => r.seo?.metaTitle)}
                         placeholder="SEO-friendly title for search engines"
                         className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
                       />
@@ -594,6 +701,7 @@ const AdminRituals = () => {
                       </label>
                       <textarea
                         name="seo[metaDescription]"
+                        defaultValue={modalFieldValue((r) => r.seo?.metaDescription)}
                         placeholder="Brief description for search engine results"
                         rows="2"
                         className="w-full border border-gray-300 px-4 py-2 rounded-lg focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
@@ -602,13 +710,12 @@ const AdminRituals = () => {
                   </div>
                 </div>
               </div>
-
               {/* Modal Footer */}
               <div className="bg-gray-50 px-6 py-4 rounded-b-2xl flex justify-end gap-4">
                 <button
                   type="button"
                   className="px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors font-medium"
-                  onClick={() => setShowModal(false)}
+                  onClick={closeModal}
                 >
                   Cancel
                 </button>
@@ -616,7 +723,7 @@ const AdminRituals = () => {
                   type="submit"
                   className="px-6 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-600 transition-all duration-300 shadow-lg hover:shadow-xl font-medium"
                 >
-                  Create Ritual
+                  {editRitual ? "Update Ritual" : "Create Ritual"}
                 </button>
               </div>
             </form>
@@ -624,7 +731,7 @@ const AdminRituals = () => {
         </div>
       )}
 
-      {/* Enhanced Footer */}
+      {/* Footer */}
       <footer className="mt-16 text-center">
         <div className="bg-white rounded-xl p-6 shadow-lg border border-gray-100">
           <div className="flex items-center justify-center gap-2 text-gray-600 mb-2">
