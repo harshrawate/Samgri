@@ -17,6 +17,15 @@ const imageStorage = new CloudinaryStorage({
   },
 });
 
+const rictualImageStorage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'samgri/rituals',
+    allowed_formats: ['jpg', 'jpeg', 'png', 'webp'],
+    resource_type: 'image',
+  },
+});
+
 const profileImageStorage = new CloudinaryStorage({
   cloudinary,
   params: {
@@ -36,7 +45,8 @@ const videoStorage = new CloudinaryStorage({
 });
 
 const uploadImages = multer({ storage: imageStorage });
+const uploadRitualImage = multer({ storage: rictualImageStorage });
 const uploadProfileImage = multer({ storage: profileImageStorage });
 const uploadVideos = multer({ storage: videoStorage });
 
-export { cloudinary, uploadImages, uploadProfileImage ,uploadVideos };
+export { cloudinary, uploadImages,uploadRitualImage, uploadProfileImage ,uploadVideos };
