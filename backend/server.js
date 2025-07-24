@@ -12,6 +12,7 @@ import addressRoutes from './routes/addressRoutes.js';
 import orderRoutes from "./routes/orderRoutes.js";
 import userRoutes from "./routes/userRoutes.js";
 import ritualRoutes from "./routes/ritualRoutes.js";
+import priestRoutes from "./routes/priestRoutes.js"
 
 // Load environment variables from .env file
 dotenv.config();
@@ -44,6 +45,7 @@ app.use('/api/addresses', addressRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/rituals", ritualRoutes);
+app.use("/api/priests", priestRoutes);
 
 
 
